@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
+require('colors');
 
 const app = express();
 const server = http.createServer(app);
@@ -8,8 +9,19 @@ const io = socketio(server);
 
 app.use(express.static('public'));
 
-io.on('connection', () => {
-  console.log('New socket connected...');
+io.on('connection', socket => {
+  console.log('New connection...'.brightCyan);
+
+  socket.emit('message', 'Welcome');
+  socket.broadcast.emit('message', 'New user has joined... 😆');
+
+  socket.on('sendMessage', message => {
+    io.emit('message', message);
+  });
+
+  socket.on('disconnect', () => {
+    io.emit('message', 'User has left... 😭');
+  });
 });
 
 server.listen(3000, () => {
