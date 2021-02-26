@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const Filter = require('bad-words');
 const socketio = require('socket.io');
+const { generateMessage } = require('./utils/messages');
 require('colors');
 
 const app = express();
@@ -13,8 +14,12 @@ app.use(express.static('public'));
 io.on('connection', socket => {
   console.log('New connection...'.brightCyan);
 
-  socket.emit('message', 'Welcome');
-  socket.broadcast.emit('message', 'New user has joined... 😆');
+  socket.emit('message', generateMessage('Welcome to the Club.'));
+
+  socket.broadcast.emit(
+    'message',
+    generateMessage('New user has joined... 😆')
+  );
 
   socket.on('sendMessage', (message, callback) => {
     const filter = new Filter();
@@ -23,13 +28,13 @@ io.on('connection', socket => {
       return callback('Profanity is not allowed');
     }
 
-    io.emit('message', message);
+    io.emit('message', generateMessage(message));
     callback();
   });
 
   socket.on('sendLocation', (location, callback) => {
     io.emit(
-      'message',
+      'locationMessage',
       `https://google.com/maps?q=${location.latitude},${location.longitude}`
     );
 
@@ -37,7 +42,7 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    io.emit('message', 'User has left... 😭');
+    io.emit('message', generateMessage('User has left... 😭'));
   });
 });
 
