@@ -1,7 +1,7 @@
 const socket = io();
 
 socket.on('message', message => {
-  console.log('Message from server: ', message);
+  console.log(message);
 });
 
 document.querySelector('#message').addEventListener('submit', e => {
@@ -9,4 +9,19 @@ document.querySelector('#message').addEventListener('submit', e => {
 
   const message = e.target.elements.message.value;
   socket.emit('sendMessage', message);
+});
+
+document.getElementById('send-location').addEventListener('click', e => {
+  if (!navigator.geolocation) {
+    return alert('Your browser does not support Geolocation.');
+  }
+
+  navigator.geolocation.getCurrentPosition(position => {
+    const location = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+
+    socket.emit('sendLocation', location);
+  });
 });
