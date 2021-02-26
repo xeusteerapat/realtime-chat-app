@@ -1,15 +1,28 @@
 const socket = io();
 
+const messageForm = document.getElementById('message-form');
+const messageFormInput = messageForm.querySelector('input');
+const messageFormButton = messageForm.querySelector('button');
+const sendLocationButton = document.getElementById('send-location');
+
 socket.on('message', message => {
   console.log(message);
 });
 
-document.querySelector('#message').addEventListener('submit', e => {
+messageForm.addEventListener('submit', e => {
   e.preventDefault();
+
+  // Disabled btn after sent message
+  messageFormButton.setAttribute('disabled', 'disabled');
 
   const message = e.target.elements.message.value;
 
   socket.emit('sendMessage', message, error => {
+    // Re-enable btn
+    messageFormButton.removeAttribute('disabled');
+    messageFormInput.value = '';
+    messageFormInput.focus();
+
     if (error) {
       return console.log(error);
     }
@@ -18,10 +31,12 @@ document.querySelector('#message').addEventListener('submit', e => {
   });
 });
 
-document.getElementById('send-location').addEventListener('click', e => {
+sendLocationButton.addEventListener('click', e => {
   if (!navigator.geolocation) {
     return alert('Your browser does not support Geolocation.');
   }
+
+  sendLocationButton.setAttribute('disabled', 'disabled');
 
   navigator.geolocation.getCurrentPosition(position => {
     const location = {
@@ -30,6 +45,8 @@ document.getElementById('send-location').addEventListener('click', e => {
     };
 
     socket.emit('sendLocation', location, error => {
+      sendLocationButton.removeAttribute('disabled');
+
       if (error) {
         return console.log(error);
       }
