@@ -12,6 +12,11 @@ const locationMessageTemplate = document.getElementById(
   'location-message-template'
 ).innerHTML;
 
+// Options
+const { username, room } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+
 socket.on('message', message => {
   console.log(message);
 
@@ -78,3 +83,5 @@ sendLocationButton.addEventListener('click', e => {
     });
   });
 });
+
+socket.emit('join', { username, room });

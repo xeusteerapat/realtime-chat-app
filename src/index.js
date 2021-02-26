@@ -17,12 +17,14 @@ app.use(express.static('public'));
 io.on('connection', socket => {
   console.log('New connection...'.brightCyan);
 
-  socket.emit('message', generateMessage('Welcome to the Club.'));
+  socket.on('join', ({ username, room }) => {
+    socket.join(room);
 
-  socket.broadcast.emit(
-    'message',
-    generateMessage('New user has joined... 😆')
-  );
+    socket.emit('message', generateMessage('Welcome to the Club.'));
+    socket.broadcast
+      .to(room)
+      .emit('message', generateMessage(`${username} has joined... 😆`));
+  });
 
   socket.on('sendMessage', (message, callback) => {
     const filter = new Filter();
@@ -31,7 +33,7 @@ io.on('connection', socket => {
       return callback('Profanity is not allowed');
     }
 
-    io.emit('message', generateMessage(message));
+    io.to('BKK').emit('message', generateMessage(message));
     callback();
   });
 
