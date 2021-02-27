@@ -47,3 +47,10 @@ const getUser = id => {
 const getUsersInRoom = room => {
   return users.filter(user => user.room === cleanUserData(room));
 };
+
+module.exports = {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+};
